@@ -1,61 +1,101 @@
-#############################################/
-#   first example of interactive drawing
-#############################################/
-
-# interactive application to convert a float in dollars and cents
+# template for "Stopwatch: The Game"
+###########################################\
+    # IMPORTS
+###########################################/
 
 import simplegui
 
-# define global value
-
-value = 3.12
-
-# Handle single quantity
-def convert_units(val, name):
-    result = str(val) + " " + name
-    if val > 1:
-        result = result + "s"
-    return result
-
-# convert xx.yy to xx dollars and yy cents
-def convert(val):
-    # Split into dollars and cents
-    dollars = int(val)
-    cents = int(round(100 * (val - dollars)))
-
-    # Convert to strings
-    dollars_string = convert_units(dollars, "dollar")
-    cents_string = convert_units(cents, "cent")
-
-    # return composite string
-    if dollars == 0 and cents == 0:
-        return "Broke!"
-    elif dollars == 0:
-        return cents_string
-    elif cents == 0:
-        return dollars_string
-    else:
-        return dollars_string + " and " + cents_string
 
 
-# define draw handler
+###########################################\
+    # GLOBAL VARIABLES
+###########################################/
+
+# Define global variables
+timer__interval = 100
+current_time = 0
+
+# Minutes
+A = 0
+# Seconds
+B = 0
+C = 0
+# Tenths of a second
+D = 0
+
+
+
+
+###########################################\
+    # HELPER FUNCTIONS
+###########################################/
+# define helper function format that converts time
+# in tenths of seconds into formatted string A:BC.D
+def format(t):
+    global A, B, C, D
+    # Caluculate Minutes
+    A = t // 600
+    # Calculate Tens of Seconds
+    B = ((t // 10) % 60) // 10
+    # Calculate Seconds
+    C = ((t // 10) % 60) % 10
+    # Calculate Tenths of Seconds
+    D = (t % 60) % 10
+    return str(A) + ":" + str(B) + str(C) + "." + str(D)
+
+
+
+
+###########################################\
+    # EVENT HANDLERS
+###########################################/
+
+# Define event handlers for buttons; "Start", "Stop", "Reset"
+# Start button - starts the timer
+def timer__start():
+    timer.start()
+
+# Stop button - stops the timer
+def timer__stop():
+    timer.stop()
+
+# Reset button - stops the timer if running, and resets timer to zero
+def timer__reset():
+    global current_time
+    timer.stop()
+    current_time = 0
+
+# Define event handler for timer with 0.1 sec interval
+def timer__handler():
+    global current_time
+    current_time += 1
+
+# Define draw handler
 def draw(canvas):
-    canvas.draw_text(convert(value), [60, 110], 24, "White")
+    canvas.draw_text(format(current_time), [100, 100], 24, "White")
 
 
-# define an input field handler
-def input_handler(text):
-    global value
-    value = float(text)
+
+###########################################\
+    # USER INTERFACE
+###########################################/
+
+# Create frame
+frame = simplegui.create_frame('Stopwatch: The Game', 500, 400)
 
 
-# create frame
-frame = simplegui.create_frame("Converter", 400, 200)
-
-# register event handlers
+# Register event handlers
+timer = simplegui.create_timer(timer__interval, timer__handler)
 frame.set_draw_handler(draw)
-frame.add_input("Enter value", input_handler, 100)
+
+# Stopwatch buttons
+btn__start = frame.add_button('Start', timer__start, 150)
+btn__stop = frame.add_button('Stop', timer__stop, 150)
+btn__reset = frame.add_button('Reset', timer__reset, 150)
 
 
-# start frame
+# Start frame
 frame.start()
+
+
+# Please remember to review the grading rubric
